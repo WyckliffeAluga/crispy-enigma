@@ -393,9 +393,7 @@ def make_crosshatch_image(scalefactor, imarray) :
         ins = []
 
         for j, row in enumerate(line_array) :
-
             line_started = False
-
             # alternate direaction in which to transverse the rows
             for i, pixel in (enumerate(row) if direction > 0) else reversed(list(enumerate(row))) :
 
@@ -404,11 +402,114 @@ def make_crosshatch_image(scalefactor, imarray) :
                     x = scalefactor * ( i - center_pixel[0])
                     y = scalefactor * ( j - center_pixel[1])
 
-                    if direction < 0 :
+                    if (direction < 0 ):
                         x = x + scalefactor
 
                     xp = c * x - s * y
                     yp = s * x + c * y
 
                     line_start = (center[0] + xp, center[1] + yp)
-                    
+
+                elif line_started and not pixel :
+
+                    line_started = False
+
+                    x = scalefactor * ( i - center_pixel[0])
+                    y = scalefactor * ( j - center_pixel[1])
+
+                    if (direction < 0 ) :
+                        x = x + scalefactor
+
+                    xp = c * x - s * y
+                    yp = s * x + c * y
+                    line_end = (center[0] + xp , center[1] + yp )
+
+                    # if line is longer than 1 cm subdivide it
+
+                    d = distance(line_start, line_end)
+                    nseg = max(round_it(d/100) , 1)
+                    ins = draw_divided_line(line_start , line_end , nseg)
+
+                    instructions = instructions + ins
+
+            # at the end of each row , finish any lines which have been started
+            if line_started :
+                line_started = False
+
+                x = direction * scalefactor * center_pixel[0]
+                y = scalefactor * (j - center_pixel[1])
+
+                xp = c*x - s*y
+                yp = x*x + c*y
+
+                line_end = (center[0] + xp , center[1] + yp )
+                d = distance(line_start , line_end)
+
+                nseg = max(round_it(d/100) , 1)
+                ins = draw_divided_line(line_start, line_end , nseg)
+
+                instructions = instructions + ins
+
+                direction = direction * -1
+
+        # lift the pen up and get it out of the way after drawing
+        instructions.append(['M', round_it(origin[0]) , round_it(origin[1])])
+
+        return instructions
+
+def make_shaded_image(scalefactor, imarray):
+
+    # Maximum intensity of image pixel
+    max_intensity = math.ceil(imarray.max())
+
+    image_size = imarray.shape
+    image_width = image_size[1]
+    imhage_height = image_size[0]
+
+    startx = center[0] - image_width * scalefactor /2
+    starty = center[1] - imhage_height *scalefactor/2
+    lastx = startx
+    lasty = starty
+
+    # First instruction sends pen to starting point
+    instructions = [['M', rint(startx), rint(starty)]]
+
+    # Maximum number of strokes per pixel.  Calculted to make stroke size a minumum of around 1 mm
+    max_strokes = int(size[0]/(max_size*10))
+
+    # Try larger MAXSTROKES to see what happens (usually = 6)
+    #MAXSTROKES = 10
+
+    jitterheight = 2 * scalefactor/3           #Height of pen strokes
+    direction = 1
+    # Step through rows of the image
+    for i, row in enumerate(imarray):
+        # Step through pixels in the row
+        for j, pixel in (enumerate(row) if (direction > 0) else reversed(list(enumerate(row)))):
+            # Invert image intensity (white=low/dark=high)
+            intensity = (max_intensity - pixel)/max_intensity
+            jitter = rint(max_strokes*intensity)
+            
+            if jitter == 0:
+                lastx = lastx + direction*scalefactor
+                instructions.append(['L', rint(lastx), rint(lasty)])
+            else:
+                jitterwidth = scalefactor/jitter
+                dx = jitterwidth/2
+                for k in range (0, jitter):
+                    instructions.append(['L', rint(lastx), rint(lasty + jitterheight)])
+                    instructions.append(['L', rint(lastx + direction*dx), rint(lasty + jitterheight)])
+                    instructions.append(['L', rint(lastx + direction*dx), rint(lasty)])
+                    instructions.append(['L', rint(lastx + direction*2*dx), rint(lasty)])
+                    lastx = lastx + direction*jitterwidth
+                    # Next pixel
+        lasty = starty + (i+1)*scalefactor
+        direction = -1*direction
+        #Lift the pen carriage up to get to the new line
+        instructions.append(['M', rint(lastx), rint(lasty)])
+
+    # Get the pen carriage up and out of the way when done
+    instructions.append(['M', canvasorigin[0], canvasorigin[1]])
+
+    #print(instructions[0:50])
+    return instructions
