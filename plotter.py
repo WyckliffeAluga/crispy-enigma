@@ -130,6 +130,8 @@ def parsing_arcs(args, direction , lastpos) :
     return instr
 
 def parsing_args(argstr) :
+    """ Returns a dictionary of argument-value pairs """
+
     dic = {}
 
     if argstr :
@@ -141,4 +143,19 @@ def parsing_args(argstr) :
             dic[letter] = coord
     return dic
 
-    
+
+def parsing_gcode(line, instructions, curpos) :
+    """ convert a line of gcode to instruction
+    handles G0 (move) , G1 (line) , G2 (CW arc) , G3 (CCW arc)
+    """
+
+    # remove trailing spaces
+    line = line.rstrip()
+
+    # remove comments
+    index = line.find(';')
+    if index > 0 :
+        line = line[:index]
+
+    # remove any items in parenthesis
+    index = line.find('(')
