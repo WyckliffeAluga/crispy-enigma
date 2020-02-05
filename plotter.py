@@ -491,7 +491,50 @@ def make_shaded_image(scalefactor, imarray):
         instructions.append(['M', round_it(lastx), round_it(lasty)])
 
     # Get the pen carriage up and out of the way when done
-    instructions.append(['M', canvasorigin[0], canvasorigin[1]])
+    instructions.append(['M', origin[0], origin[1]])
 
     #print(instructions[0:50])
+    return instructions
+
+# Create instructions list from image
+def scalarimage(imfile, shadetype):
+
+    # Import and manipulate the picture
+    im = Image.open(imfile)
+
+    # See if aspect ratio of image is greater or less than canvas aspect ratio.
+    # Then scalefactor up the image to MAXIMSIZE pixels on the largest side.
+    # Add a slight margin for error to make sure we don't exceed boundaries
+    scalefactor = 1
+
+    margin = 200
+    if im.size[1]/im.size[0] > size[1]/size[0]:
+
+        scalefactor = (size[1] - margin)/max_size
+    else:
+        scalefactor = (size[0] - margin)/max_size
+
+    im.thumbnail((max_size, max_size), Image.ANTIALIAS)
+
+    # Get new size
+    image_size = im.size
+    print("imsize = ", image_size)
+    print("scalefactor = ", scalefactor)
+
+    #If the image has an alpha channel set all transparent pixels to white
+    im = transparent_to_white(im)
+
+    # Show the image on the screen
+    showimg(im)
+
+    # Convert image to array
+    imarray = np.array(im.convert('L'))
+
+
+    instructions = []
+    if (shadetype == IMG_SCALAR_SHADED):
+        instructions = make_shaded_image(scalefactor, imarray)
+    elif (shadetype == IMG_SCALAR_CROSSHATCH):
+        instructions = make_crosshatch_image(scalefactor, imarray)
+
     return instructions
