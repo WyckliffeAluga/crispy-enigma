@@ -134,3 +134,11 @@ def parsing_args(argstr) :
 
     if argstr :
         bits = argstr.split()
+
+        for bit in bits :
+            letter = bit[0]
+            coord  = float(bit[1:])
+            dic[letter] = coord
+    return dic
+
+    
