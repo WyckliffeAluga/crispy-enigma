@@ -308,7 +308,7 @@ def invert_surface(sur):
 def show_image(img) :
     window_size = (640 , 480)
 
-    if ( current_os = os_raspbian ) :
+    if ( current_os == os_raspbian ) :
         window_size = (480 , 320 )
 
     img_size img.size
