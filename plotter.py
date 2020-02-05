@@ -338,124 +338,105 @@ def show_image(img) :
     screen.blit(sur, (0,0))
     pygame.display.fip()
 
-def make_crosshatch_image(scalefactor, imarray) :
-    """ Returns a list for crosshatch shaded image """
-
-    # array to be returned
+def make_crosshatch_image(scalefactor, imarray):
+    # Array to be returned
     instructions = []
 
-    # scale the values
+    # Scale the values in imarray from 0 to MAXINTENSITY
     max_intensity = 255
     minval = imarray.min()
     maxval = imarray.max()
+    intensity_scale = max_intensity/(maxval - minval)
+    imarray = intensity_scale*(imarray - minval)
 
-    intensity_scale = max_intensity / (maxval - minval)
-    imarray = intensity_scale * (imarray - minval)
+    # The center of the image (in units of 0.1 mm) is the point around which it is rotated
+    centerx = imarray.shape[1]*scalefactor/2.0
+    centery = imarray.shape[0]*scalefactor/2.0
 
-    # The center of the image in units of 0.1 mm
-    centerx = imarray.shape[1] * scalefactor / 2.0
-    centery = imarray.shape[0] * scalefactor / 2.0
-
-    # start
+    # startx, starty are the upper left corner of the image
     startx = center[0] - centerx
     starty = center[1] - centery
 
-    # number of crosshatch layers to lay down
+    # The number of crosshatch layers to lay down
     n_layers = 6
-    angle_interval = np.pi / n_layers
+    angle_interval = np.pi/n_layers
 
-    # start with one line per image row
-    print('Computing ', n_layers , 'crosshatch arrays')
+    # Start with one line per image row
+    print("Computing ", n_layers, " crosshatch arrays")
     filler_pixel_value = max_intensity + 1
 
-    for layer in range(n_layers) :
-        angle = layer * angle_interval
-
-        print('Angle = ', round_it(math.degrees(angle)))
-
+    for layer in range(n_layers):
+        angle = layer*angle_interval
+        print("angle = ", rint(math.degrees(angle)))
+        # Ndimage rotate function rotates in the opposite direction of our coordinate system
+        # so the angle for our rotation has the same sign as the angle passed to ndimage.rotate
         c = math.cos(angle)
         s = math.sin(angle)
 
-        # rotate image into bigger images
-        rotation_array = ndimage.rotate(imarray, math.degrees(angle) ,
-                                        mode='constant', cval=filler_pixel_value)
-        threshold = max_intensity * (n_layers - layer - 0.25) / n_layers
+        # Rotate image into bigger array.  Extra pixels generated get set to FILLER_PIXEL_VAL
+        rot_array = ndimage.rotate(imarray, math.degrees(angle), mode='constant', cval=filler_pixel_value)
+        threshold = max_intensity*(n_layers - layer - 0.25)/n_layers
 
-        # create an array of booleans in which lowe intensity pizes are part of the line
-        line_array = rotation_array < threshold
+        # Lower intensity pixels get drawn darker (more lines).  Create an array of booleans
+        # which are true if they are part of the line and false if not
+        line_array = rot_array < threshold
 
-        # enter of the rotation
-        center_pixel = [line_array.shape[1] / 2.0 , line_array[0] / 2.0]
+        # Center of the rotation - we'll need to rotate the line coordinates back around this point
+        center_pixel = [line_array.shape[1]/2.0, line_array.shape[0]/2.0]
 
         direction = 1
         line_start = (0.0, 0.0)
         line_end = (0.0, 0.0)
         ins = []
-
-        for j, row in enumerate(line_array) :
+        for j, row in enumerate(line_array):
             line_started = False
-            # alternate direaction in which to transverse the rows
-            for i, pixel in (enumerate(row) if direction > 0) else reversed(list(enumerate(row))) :
-
-                if pixel and not line_started :
+            # Alternate directions in which we traverse the rows
+            for i, pixel in (enumerate(row) if (direction > 0) else reversed(list(enumerate(row)))):
+                if pixel and not line_started:
                     line_started = True
-                    x = scalefactor * ( i - center_pixel[0])
-                    y = scalefactor * ( j - center_pixel[1])
-
-                    if (direction < 0 ):
+                    x = scalefactor*(i - center_pixel[0])
+                    y = scalefactor*(j - center_pixel[1])
+                    if (direction < 0):
                         x = x + scalefactor
-
-                    xp = c * x - s * y
-                    yp = s * x + c * y
-
+                    xp = c*x - s*y
+                    yp = s*x + c*y
                     line_start = (center[0] + xp, center[1] + yp)
 
-                elif line_started and not pixel :
-
+                elif line_started and not pixel:
                     line_started = False
-
-                    x = scalefactor * ( i - center_pixel[0])
-                    y = scalefactor * ( j - center_pixel[1])
-
-                    if (direction < 0 ) :
+                    x = scalefactor*(i - center_pixel[0])
+                    y = scalefactor*(j - center_pixel[1])
+                    if (direction < 0):
                         x = x + scalefactor
-
-                    xp = c * x - s * y
-                    yp = s * x + c * y
-                    line_end = (center[0] + xp , center[1] + yp )
-
-                    # if line is longer than 1 cm subdivide it
-
+                    xp = c*x - s*y
+                    yp = s*x + c*y
+                    line_end = (center[0] + xp, center[1] + yp)
+                    # If line is longer than 1 cm (100 x 0.1 mm), then subdivide it
                     d = distance(line_start, line_end)
-                    nseg = max(round_it(d/100) , 1)
-                    ins = draw_divided_line(line_start , line_end , nseg)
-
+                    nseg = max(round_it(d/100), 1)
+                    ins = draw_divided_line(line_start, line_end, nseg)
+##                    check_out_of_bounds_list(ins)
                     instructions = instructions + ins
 
-            # at the end of each row , finish any lines which have been started
-            if line_started :
+            # At the end of each row, finish any lines which have been started
+            if line_started:
                 line_started = False
-
-                x = direction * scalefactor * center_pixel[0]
-                y = scalefactor * (j - center_pixel[1])
-
+                x = direction*scalefactor*center_pixel[0]
+                y = scalefactor*(j - center_pixel[1])
                 xp = c*x - s*y
-                yp = x*x + c*y
-
-                line_end = (center[0] + xp , center[1] + yp )
-                d = distance(line_start , line_end)
-
-                nseg = max(round_it(d/100) , 1)
-                ins = draw_divided_line(line_start, line_end , nseg)
-
+                yp = s*x + c*y
+                line_end = (center[0] + xp, center[1] + yp)
+                d = distance(line_start, line_end)
+                nseg = max(round_it(d/100), 1)
+                ins = draw_divided_line(line_start, line_end, nseg)
+##                check_out_of_bounds_list(ins)
                 instructions = instructions + ins
 
-                direction = direction * -1
+            direction = direction*-1
 
-        # lift the pen up and get it out of the way after drawing
-        instructions.append(['M', round_it(origin[0]) , round_it(origin[1])])
-
-        return instructions
+    # Lift the pen up and get it out of the way after drawing
+    instructions.append(['M', rint(origin[0]), round_it(origin[1])])
+    return instructions
 
 def make_shaded_image(scalefactor, imarray):
 
@@ -464,23 +445,21 @@ def make_shaded_image(scalefactor, imarray):
 
     image_size = imarray.shape
     image_width = image_size[1]
-    imhage_height = image_size[0]
+    image_height = image_size[0]
 
     startx = center[0] - image_width * scalefactor /2
-    starty = center[1] - imhage_height *scalefactor/2
+    starty = center[1] - image_height *scalefactor /2
     lastx = startx
     lasty = starty
 
     # First instruction sends pen to starting point
-    instructions = [['M', rint(startx), rint(starty)]]
+    instructions = [['M', round_it(startx), round_it(starty)]]
 
     # Maximum number of strokes per pixel.  Calculted to make stroke size a minumum of around 1 mm
     max_strokes = int(size[0]/(max_size*10))
 
-    # Try larger MAXSTROKES to see what happens (usually = 6)
-    #MAXSTROKES = 10
 
-    jitterheight = 2 * scalefactor/3           #Height of pen strokes
+    jitterheight = 2 * scalefactor / 3           #Height of pen strokes
     direction = 1
     # Step through rows of the image
     for i, row in enumerate(imarray):
@@ -488,25 +467,28 @@ def make_shaded_image(scalefactor, imarray):
         for j, pixel in (enumerate(row) if (direction > 0) else reversed(list(enumerate(row)))):
             # Invert image intensity (white=low/dark=high)
             intensity = (max_intensity - pixel)/max_intensity
-            jitter = rint(max_strokes*intensity)
-            
+            jitter = round_it(max_strokes*intensity)
+
             if jitter == 0:
                 lastx = lastx + direction*scalefactor
-                instructions.append(['L', rint(lastx), rint(lasty)])
+                instructions.append(['L', round_it(lastx), round_it(lasty)])
             else:
-                jitterwidth = scalefactor/jitter
-                dx = jitterwidth/2
+                jitterwidth = scalefactor / jitter
+
+                dx = jitterwidth / 2
                 for k in range (0, jitter):
-                    instructions.append(['L', rint(lastx), rint(lasty + jitterheight)])
-                    instructions.append(['L', rint(lastx + direction*dx), rint(lasty + jitterheight)])
-                    instructions.append(['L', rint(lastx + direction*dx), rint(lasty)])
-                    instructions.append(['L', rint(lastx + direction*2*dx), rint(lasty)])
+                    instructions.append(['L', round_it(lastx), round_it(lasty + jitterheight)])
+                    instructions.append(['L', round_it(lastx + direction*dx), round_it(lasty + jitterheight)])
+                    instructions.append(['L', round_it(lastx + direction*dx), round_it(lasty)])
+                    instructions.append(['L', round_it(lastx + direction*2*dx), round_it(lasty)])
+
                     lastx = lastx + direction*jitterwidth
                     # Next pixel
+
         lasty = starty + (i+1)*scalefactor
         direction = -1*direction
         #Lift the pen carriage up to get to the new line
-        instructions.append(['M', rint(lastx), rint(lasty)])
+        instructions.append(['M', round_it(lastx), round_it(lasty)])
 
     # Get the pen carriage up and out of the way when done
     instructions.append(['M', canvasorigin[0], canvasorigin[1]])
