@@ -379,3 +379,19 @@ def make_crosshatch_image(scalefactor, imarray) :
         # rotate image into bigger images
         rotation_array = ndimage.rotate(imarray, math.degrees(angle) ,
                                         mode='constant', cval=filler_pixel_value)
+        threshold = max_intensity * (n_layers - layer - 0.25) / n_layers
+
+        # create an array of booleans in which lowe intensity pizes are part of the line
+        line_array = rotation_array < threshold
+
+        # enter of the rotation
+        center_pixel = [line_array.shape[1] / 2.0 , line_array[0] / 2.0]
+
+        direction = 1
+        line_start = (0.0, 0.0)
+        line_end = (0.0, 0.0)
+        ins = []
+
+        for j, row in enumerate(line_array) :
+
+            line_started = False 
