@@ -333,10 +333,10 @@ def show_image(img) :
     (w, h) = sur.get_size()
     factor = int(scalefactor)
 
-    sur.pygame.transform.scale(sur, (w * factor, h * factor))
+    sur = pygame.transform.scale(sur, (w * factor, h * factor))
 
     screen.blit(sur, (0,0))
-    pygame.display.fip()
+    pygame.display.flip()
 
 def make_crosshatch_image(scalefactor, imarray):
     # Array to be returned
