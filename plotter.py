@@ -71,3 +71,41 @@ def data(line):
 
     else :
         return cmd_unkown
+
+def parsing_line(args , pen_mode) :
+    """ Returns instructions for stepping through a line """
+    ins - None
+
+    dic = parsing_args(args)
+
+    if ('X' in dic ) and ('Y' in dic) :
+        mode = 'M' if pen_mode == pen_up else 'L'
+
+        # by multiplying the Y variable by -1 to point the Y axis down
+        ins = [mode , dic['X'] , -1*dic['Y']]
+
+    return ins
+
+def parsing_arcs(args, direction , lastpos) :
+    """ return instructions for stepping through an arc """
+    instr = []
+
+    dic = parsing_args(args)
+    dx  = dic.get('I' , 0)
+    dy  = dic.get('J' , 0)
+
+    arc_center = [lastpos[0] + dx , lastpos[1] + dy]
+    arc_end    = [dic.get('X') , dic.get('Y')]
+
+    radius = maths.sqrt( dx ** 2  + dy ** 2)
+
+    theta_i = arc_tan(-dy , -dx)
+    theta_f = arc_tan(arc_end[1] - arc_center[1] , arc_end[0] - arc_center[0])
+
+    sweep = theta_f - theta_i
+
+    if (direction == dir_cw  and sweep < 0) :
+        theta_f = theta_f + 2 * np.pi
+
+    elif (direction == dir_ccw and sweep > 0):
+        theta_i = theta_i + 2 * np.pi
