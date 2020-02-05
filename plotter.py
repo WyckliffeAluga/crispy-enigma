@@ -612,3 +612,73 @@ def draw_test_pattern():
 
     #check_out_of_bounds(instructions)
     return instructions
+
+def main():
+
+    # Show askopenfilename dialog without the Tkinter window
+    root = tkinter.Tk()
+    root.withdraw()
+    dirname = ""
+    if (current_os == os_windows):
+        dirname = "C:\Users\wyckl\Documents\crispy-enigma\img\"
+    elif (current_os == os_raspbian):
+        dirname = "/home/pi/WallPlotterImages"
+    filename = filedialog.askopenfilename(title="Chose a Data File",
+                                          initialdir=dirname,
+                                          filetypes=[('all files', '.*'), ('jpg files', '.jpg')])
+    print(filename)
+
+    print("Enter graphics type:")
+    print("(1) Image file shading")
+    print("(2) Image file crosshatch")
+    print("(3) GCode")
+    print("(4) Test Pattern")
+    option = int(input("Select number of desired option "))
+
+    instructions = []
+    if option == 1:
+        instructions = scalarimage(filename, shaded_scalar_image)
+    elif option == 2:
+        instructions = scalarimage(filename, crosshatch_scalar_image)
+    elif option == 3:
+        instructions = vectorimage(filename)
+    elif option == 4:
+        instructions = draw_test_pattern()
+
+    # Open serial connection to Arduino -> TBD set correct port
+    port_name = ""
+    if (current_os == os_windows):
+        port_name = "COM34"
+    elif(current_os == os_raspbian):
+        port_name = "/dev/ttyUSB0"
+    arduino = serial.Serial(port=port_name, baudrate=57600)
+    print(arduino.name)
+
+    # Wait for connection to establish
+    connected = False
+    while not connected:
+        serin = arduino.read()
+        connected = True
+
+    # Send directions to the Arduino and listen for feedback
+    while True:
+        line = arduino.readline()
+        if line:
+            cmd = processdata(line)
+            if (cmd == cmd_console):
+                print(line)
+            elif (cmd == cmd_ok):
+                if len(instructions) == 0:
+                    print("finished")
+                else:
+                    # Obtain and remove the first instruction from the list
+                    inst = instructions.pop(0)
+                    buf = "%c %d %d;" % (inst[0], inst[1], inst[2])
+                    #print("buf = " + buf)
+                    arduino.write(buf.encode('ascii'))
+            else:
+                print("Command received but not understood:")
+                print(line)
+
+
+main()
