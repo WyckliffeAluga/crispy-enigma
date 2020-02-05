@@ -1,6 +1,5 @@
 
 import serial
-from serial import Serial
 from PIL import Image
 import numpy as np
 from scipy import ndimage
@@ -651,7 +650,7 @@ def main():
         port_name = "COM34"
     elif(current_os == os_raspbian):
         port_name = "/dev/ttyUSB0"
-    arduino = Serial(port=port_name, baudrate=57600)
+    arduino = serial.Serial(port=port_name, baudrate=57600)
     print(arduino.name)
 
     # Wait for connection to establish
