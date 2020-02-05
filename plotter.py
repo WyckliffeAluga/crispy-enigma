@@ -532,9 +532,50 @@ def scalarimage(imfile, shadetype):
 
 
     instructions = []
-    if (shadetype == IMG_SCALAR_SHADED):
+    if (shadetype == shaded_scalar_image):
         instructions = make_shaded_image(scalefactor, imarray)
-    elif (shadetype == IMG_SCALAR_CROSSHATCH):
+    elif (shadetype == crosshatch_scalar_image):
         instructions = make_crosshatch_image(scalefactor, imarray)
 
     return instructions
+
+def distance(a, b):
+    return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
+
+
+def draw_divided_line(firstpt, lastpt, n):
+    """ Create instructions to draw a line composed of n increments from start to end """
+
+    if (n <= 0):
+        print("Can't divide line into 0/- segments")
+        return []
+
+    instructions = [['M', round_it(firstpt[0]), round_it(firstpt[1])]]
+
+    xinc = (lastpt[0] - firstpt[0])/n
+    yinc = (lastpt[1] - firstpt[1])/n
+
+    for i in range(1, n+1):
+        instructions.append(['L', round_it(firstpt[0] + i*xinc), round_it(firstpt[1] + i*yinc)])
+
+    return instructions
+
+def check_out_of_bounds(ins):
+    if ((ins[1] < canvasorigin[0]) or
+        (ins[1] > canvasorigin[0] + canvassize[0]) or
+        (ins[2] < canvasorigin[1]) or
+        (ins[2] > canvasorigin[1] + canvassize[1])):
+        return True
+    else:
+        return False
+
+
+# Checks a list of instructions to see if any of the coordinates are out of bounds
+def check_out_of_bounds_list(instructions):
+    all_in_bounds = True
+    for ins in instructions:
+        if check_out_of_bounds(ins):
+            print("Out of bounds:", ins)
+            all_in_bounds = False
+
+    return all_in_bounds
