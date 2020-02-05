@@ -323,7 +323,7 @@ def show_image(img) :
     if (img.mode == 'L'):
         img = img.convert('RGB')
 
-    image_string = img.tostring()
+    image_string = img.tobytes()
     sur = pygame.image.fromstring(image_string, img.size, img.mode)
 
     # convert to gray scale
@@ -525,7 +525,7 @@ def scalarimage(imfile, shadetype):
     im = transparent_to_white(im)
 
     # Show the image on the screen
-    showing(im)
+    show_image(im)
 
     # Convert image to array
     imarray = np.array(im.convert('L'))
