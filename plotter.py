@@ -620,7 +620,7 @@ def main():
     root.withdraw()
     dirname = ""
     if (current_os == os_windows):
-        dirname = "C:\Users\wyckl\Documents\crispy-enigma\img\"
+        dirname = "C:/Users/wyckl/Documents/crispy-enigma/img"
     elif (current_os == os_raspbian):
         dirname = "/home/pi/WallPlotterImages"
     filename = filedialog.askopenfilename(title="Chose a Data File",
