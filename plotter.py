@@ -304,4 +304,44 @@ def invert_surface(sur):
     inv.blit(sur, (0,0) , None , pygame.BLEND_RGB_SUB)
 
     return inv
-    
+
+def show_image(img) :
+    window_size = (640 , 480)
+
+    if ( current_os = os_raspbian ) :
+        window_size = (480 , 320 )
+
+    img_size img.size
+
+    # maximize the size of the displayed image
+    scalefactor = min(window_size[0] / img_size[0] , window_size[1] / img_size[1])
+
+    # create a window for display
+    screen = pygame.display.set_mode(window_size)
+
+    # convert PIL image to Pygame surface
+    if (img.mode == 'L'):
+        img = img.convert('RGB')
+
+    image_string = img.tostring()
+    sur = pygame.image.fromstring(image_string, img.size, img.mode)
+
+    # convert to gray scale
+    sur = grayscale_surface(sur)
+
+    # scale the image up to size
+    (w, h) = sur.get_size()
+    factor = int(scalefactor)
+
+    sur.pygame.transform.scale(sur, (w * factor, h * factor)
+
+    screen.blit(sur, (0,0))
+    pygame.display.fip()
+
+def make_crosshatch_image(scalefactor, imarray) :
+    """ Returns a list for crosshatch shaded image """
+
+    # array to be returned
+    instructions = []
+
+    # scale 
