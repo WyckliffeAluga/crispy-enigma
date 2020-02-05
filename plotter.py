@@ -109,3 +109,20 @@ def parsing_arcs(args, direction , lastpos) :
 
     elif (direction == dir_ccw and sweep > 0):
         theta_i = theta_i + 2 * np.pi
+
+    # arc length in units of 0.1 mm
+    arc_length = abs(sweep) * radius
+
+    # specify how long each arc segment will be
+    cm_per_segment     = 0.025
+    number_of_segments = int(arc_length / cm_per_segment)
+
+    # interpolate around the arc
+    for i in range(number_of_segments) :
+        fraction  = i / number_of_segments
+        theta_mid = sweep * fraction + theta_i
+
+        x_i = arc_center[0] + math.cos(theta_mid) * radius
+        y_i = arc_center[1] + math.sin(theta_mid) * radius
+
+    instr.append(['L' , arc_end[0] , arc_end[1]])
