@@ -126,3 +126,11 @@ def parsing_arcs(args, direction , lastpos) :
         y_i = arc_center[1] + math.sin(theta_mid) * radius
 
     instr.append(['L' , arc_end[0] , arc_end[1]])
+
+    return instr
+
+def parsing_args(argstr) :
+    dic = {}
+
+    if argstr :
+        bits = argstr.split()
