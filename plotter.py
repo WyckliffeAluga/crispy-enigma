@@ -525,7 +525,7 @@ def scalarimage(imfile, shadetype):
     im = transparent_to_white(im)
 
     # Show the image on the screen
-    showimg(im)
+    showing(im)
 
     # Convert image to array
     imarray = np.array(im.convert('L'))
