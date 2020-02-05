@@ -394,4 +394,21 @@ def make_crosshatch_image(scalefactor, imarray) :
 
         for j, row in enumerate(line_array) :
 
-            line_started = False 
+            line_started = False
+
+            # alternate direaction in which to transverse the rows
+            for i, pixel in (enumerate(row) if direction > 0) else reversed(list(enumerate(row))) :
+
+                if pixel and not line_started :
+                    line_started = True
+                    x = scalefactor * ( i - center_pixel[0])
+                    y = scalefactor * ( j - center_pixel[1])
+
+                    if direction < 0 :
+                        x = x + scalefactor
+
+                    xp = c * x - s * y
+                    yp = s * x + c * y
+
+                    line_start = (center[0] + xp, center[1] + yp)
+                    
