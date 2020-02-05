@@ -311,7 +311,7 @@ def show_image(img) :
     if ( current_os == os_raspbian ) :
         window_size = (480 , 320 )
 
-    img_size img.size
+    img_size =  img.size
 
     # maximize the size of the displayed image
     scalefactor = min(window_size[0] / img_size[0] , window_size[1] / img_size[1])
