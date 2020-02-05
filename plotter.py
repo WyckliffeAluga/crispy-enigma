@@ -246,3 +246,23 @@ def vectorimage(filename):
     instructions.append(['M' , 0 , 0])
 
     return instructionst
+
+def grayscale_surface(surf) :
+    """ converts a pygame surface to gray scale values """
+
+    width , height = surf.get_size()
+
+    for x in range(width):
+        for y in range(height):
+            red , green , blue, alpha = surf.get_at((x,y))
+            L = 0.3 * red + 0.59 * green + 0.11 * blue
+            gs_color = (L, L, L, alpha)
+            surf.set_at((x,y), gs_color)
+
+    return surf
+
+def transparent_to_white(im):
+
+    """ set any transparent pixels to white in a PIL image """
+    if (im.mode == 'RGBA'):
+        
