@@ -344,4 +344,38 @@ def make_crosshatch_image(scalefactor, imarray) :
     # array to be returned
     instructions = []
 
-    # scale 
+    # scale the values
+    max_intensity = 255
+    minval = imarray.min()
+    maxval = imarray.max()
+
+    intensity_scale = max_intensity / (maxval - minval)
+    imarray = intensity_scale * (imarray - minval)
+
+    # The center of the image in units of 0.1 mm
+    centerx = imarray.shape[1] * scalefactor / 2.0
+    centery = imarray.shape[0] * scalefactor / 2.0
+
+    # start
+    startx = center[0] - centerx
+    starty = center[1] - centery
+
+    # number of crosshatch layers to lay down
+    n_layers = 6
+    angle_interval = np.pi / n_layers
+
+    # start with one line per image row
+    print('Computing ', n_layers , 'crosshatch arrays')
+    filler_pixel_value = max_intensity + 1
+
+    for layer in range(n_layers) :
+        angle = layer * angle_interval
+
+        print('Angle = ', round_it(math.degrees(angle)))
+
+        c = math.cos(angle)
+        s = math.sin(angle)
+
+        # rotate image into bigger images
+        rotation_array = ndimage.rotate(imarray, math.degrees(angle) ,
+                                        mode='constant', cval=filler_pixel_value)
