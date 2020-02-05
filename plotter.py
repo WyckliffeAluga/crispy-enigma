@@ -55,4 +55,19 @@ def arctan(dy, dx):
 
     return arc_tan
 
-print(arctan(0.2 , 0.5))
+
+# process the commands received from arduino
+
+def data(line):
+    """  line data comes in binary - here we convert it to string"""
+
+    line = line.decode('ascii')
+
+    if line[0] == '#' :
+        return cmd_console
+
+    elif line.find('OK') ==  0:
+        return cmd_ok
+
+    else :
+        return cmd_unkown
