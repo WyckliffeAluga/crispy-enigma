@@ -214,7 +214,7 @@ def vectorimage(filename):
 
     # scale the instructions to the canvas size
     x_values = [float(x) for x in np.array(instructions)[:,1]]
-    y_values = [float(x) for y ni np.array(instructions)[:,2]]
+    y_values = [float(x) for y in np.array(instructions)[:,2]]
 
     max_x = max(x_values)
     min_x = max(x_values)
