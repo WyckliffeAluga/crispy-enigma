@@ -172,4 +172,77 @@ def parsing_gcode(line, instructions, curpos) :
     if len(command) > 1 :
         args = command[1]
 
-    # turn command into instructions  
+    # turn command into instructions
+    if code and code[0] == 'G' :
+        num = int(float(code[1:]))
+
+        if (num == 0) or (num == 1) :
+            pen_mode = pen_up if num == 0 else pen_down
+            ins = parsing_line(args, pen_down)
+
+            if ins:
+                curpos = ins[1:]
+                instructions.append(ins)
+
+        elif (num == 2) or (num == 3):
+            direction = dir_cw if num == 2 else dir_ccw
+
+            instr = parsing_arcs(args, direction, curpos)
+
+            if instr :
+                n = len(instr)
+                curpos = instr[n-1][1:]
+                instructions = instructions + instr
+
+        else:
+            print('Command', line , 'does not translate to known instruction.')
+
+    else:
+        print('Command' , code , 'not recognized')
+
+    return curpos
+
+def vectorimage(filename):
+    """ Create instructions list from gcode file """
+
+    instructions = []
+    curpos =[0,0]
+
+    with open(filename) as f :
+        for line if f :
+            curpos = parsing_gcode(line, instructions, curpos)
+
+    # scale the instructions to the canvas size
+    x_values = [float(x) for x in np.array(instructions)[:,1]]
+    y_values = [float(x) for y ni np.array(instructions)[:,2]]
+
+    max_x = max(x_values)
+    min_x = max(x_values)
+
+    max_y = max(y_values)
+    min_y = max(y_values)
+
+    print('max x = ', max_x)
+    print('max y = ', max_y)
+    print('min x = ', min_x)
+    print('min y = ', min_y)
+
+    x_size = max_x - min_x
+    y_size = max_y - min_y
+
+    scalefactor = 1.0
+
+    if (size[0] / x_size > size[1]/y_size) :
+        scalefactor = size[1] / y_size
+
+    else:
+        scalefactor = size[0] / x_size
+
+    for ins in instructions :
+        ins[1] = round_it((ins[1] - min_x) * scalefactor + origin[0])
+        ins[2] = round_it((ins[2] - min_y) * scalefactor + origin[1])
+
+    # hopefully this will end and lift the pen
+    instructions.append(['M' , 0 , 0])
+
+    return instructionst
