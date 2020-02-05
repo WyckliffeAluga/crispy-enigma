@@ -159,3 +159,17 @@ def parsing_gcode(line, instructions, curpos) :
 
     # remove any items in parenthesis
     index = line.find('(')
+    if index > 0 :
+        line = line[:index]
+
+    # get command and args
+    command = line.split(None, 1)
+    code = None
+    args = None
+
+    if len(command) > 0 :
+        code = command[0]
+    if len(command) > 1 :
+        args = command[1]
+
+    # turn command into instructions  
