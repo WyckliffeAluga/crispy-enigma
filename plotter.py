@@ -209,7 +209,7 @@ def vectorimage(filename):
     curpos =[0,0]
 
     with open(filename) as f :
-        for line if f :
+        for line in f :
             curpos = parsing_gcode(line, instructions, curpos)
 
     # scale the instructions to the canvas size
