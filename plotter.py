@@ -265,4 +265,32 @@ def transparent_to_white(im):
 
     """ set any transparent pixels to white in a PIL image """
     if (im.mode == 'RGBA'):
-        
+        bottom_image = Image.new('RGBA' , (im.size[0] , im.size[1]) , 'white')
+        r,g,b,a = im.split()
+
+        im = Image.merge('RGB' , (r,g,b))
+        mask = Image.merge('L', (a,))
+        bottom_image.paste(im, (0,0), mask)
+
+        return bottom_image
+
+    else:
+        return im
+
+
+def invert_image(im) :
+
+    """ inverts the colors in a PIL image """
+
+    if (im.mode == 'RGBA'):
+        r, g, b, a = im.split()
+        rgb_image = Image.merge('RGB' , (r,g,b))
+        inverted_image = PIL.ImageOps.invert(rgb_image)
+
+        r2 , g2, b2 = inverted.image()
+
+        return Image.merge('RGBA' , (r2, g2, b2, a))
+
+    else:
+
+        return PIL.ImageOps.invert(im)
