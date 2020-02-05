@@ -45,3 +45,14 @@ def round_it(x):
 def remove_return(str):
     """ Returns a string without the return clause"""
     return str.rstrip('\r\n')
+
+def arctan(dy, dx):
+    """ Returns the arctan of angle between 0 and 2*pi """
+    arc_tan = math.atan2(dy, dx)
+
+    if arc_tan < 0:
+        arc_tan = arc_tan + 2 * np.pi
+
+    return arc_tan
+
+print(arctan(0.2 , 0.5))
