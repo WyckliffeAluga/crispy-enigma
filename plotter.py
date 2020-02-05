@@ -579,3 +579,36 @@ def check_out_of_bounds_list(instructions):
             all_in_bounds = False
 
     return all_in_bounds
+
+
+def draw_test_pattern():
+    instructions = []
+    """ # Draw a pattern to test the printer """
+    margin = 100
+    co = [origin[0] + margin, origin[1] + margin]
+    cs = [size[0] - margin, size[1] - margin]
+
+    # Draw a square around the perimeter of the canvas
+    instructions.append(['M', round_it(co[0]), round_it(co[1])])
+    instructions.append(['L', round_it(co[0] + cs[0]), round_it(co[1])])
+    instructions.append(['L', round_it(co[0] + cs[0]), round_it(co[1] + cs[1])])
+    instructions.append(['L', round_it(co[0]), round_it(co[1] + cs[1])])
+    instructions.append(['L', round_it(co[0]), round_it(co[1])])
+
+    # Draw a big 'X' across the square, then return to origin
+    instructions.append(['L', round_it(co[0] + cs[0]), round_it(co[1] + cs[1])])
+    instructions.append(['M', round_it(co[0] + cs[0]), round_it(co[1])])
+    instructions.append(['L', round_it(co[0]), round_it(co[1] + cs[1])])
+
+    # Now draw the same lines broken into smaller steps.  Should be straighter when drawn in segments
+    ninc = 40
+    instructions = instructions + draw_divided_line([co[0], co[1]], [co[0] + cs[0], co[1]], ninc)
+    instructions = instructions + draw_divided_line([co[0] + cs[0], co[1]], [co[0] + cs[0], co[1] + cs[1]], ninc)
+    instructions = instructions + draw_divided_line([co[0] + cs[0], co[1] + cs[1]], [cs[1], co[1] + cs[1]], ninc)
+    instructions = instructions + draw_divided_line([co[0], co[1] + cs[1]], [co[0], co[1]], ninc)
+    instructions = instructions + draw_divided_line([co[0], co[1]], [co[0] + cs[0], co[1] + cs[1]], ninc)
+    instructions = instructions + draw_divided_line([co[0] + cs[0], co[1]], [co[0], co[1] + cs[1]], ninc)
+    instructions.append(['M', round_it(co[0]), round_it(co[1])])
+
+    #check_out_of_bounds(instructions)
+    return instructions
