@@ -294,3 +294,14 @@ def invert_image(im) :
     else:
 
         return PIL.ImageOps.invert(im)
+
+def invert_surface(sur):
+    """ inverts the colors in a Surface  Array - by converting to image """
+
+    inv = pygame.Surface(sur.get_rect().size , pygame.SRCALPHA)
+    inv.fill((255, 255, 255, 255))
+
+    inv.blit(sur, (0,0) , None , pygame.BLEND_RGB_SUB)
+
+    return inv
+    
