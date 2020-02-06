@@ -1,4 +1,4 @@
-rom random import *
+from random import *
 from PIL import Image, ImageDraw, ImageOps
 from utility import *
 

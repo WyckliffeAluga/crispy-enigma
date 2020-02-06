@@ -108,7 +108,7 @@ def getcontours(IM,sc=2):
     for i in range(len(contours)):
         for j in range(len(contours)):
             if len(contours[i]) > 0 and len(contours[j])>0:
-                if distsum(contours[j][0],contours[i][-1]) < 8:
+                if sum_distance(contours[j][0],contours[i][-1]) < 8:
                     contours[i] = contours[i]+contours[j]
                     contours[j] = []
 
@@ -123,7 +123,7 @@ def getcontours(IM,sc=2):
 
     for i in range(0,len(contours)):
         for j in range(0,len(contours[i])):
-            contours[i][j] = int(contours[i][j][0]+10*perlin.noise(i*0.5,j*0.1,1)),int(contours[i][j][1]+10*perlin.noise(i*0.5,j*0.1,2))
+            contours[i][j] = int(contours[i][j][0]+10*noise.noise(i*0.5,j*0.1,1)),int(contours[i][j][1]+10*noise.noise(i*0.5,j*0.1,2))
 
     return contours
 
@@ -165,19 +165,21 @@ def hatch(IM,sc=16):
 
     for i in range(0,len(lines)):
         for j in range(0,len(lines[i])):
-            lines[i][j] = int(lines[i][j][0]+sc*perlin.noise(i*0.5,j*0.1,1)),int(lines[i][j][1]+sc*perlin.noise(i*0.5,j*0.1,2))-j
+            lines[i][j] = int(lines[i][j][0]+sc*noise.noise(i*0.5,j*0.1,1)),int(lines[i][j][1]+sc*noise.noise(i*0.5,j*0.1,2))-j
     return lines
 
 
 def sketch(path):
     IM = None
     possible = [path,"images/"+path,"images/"+path+".jpg","images/"+path+".png","images/"+path+".tif"]
+    possible = 'sample_one.jpg'
     for p in possible:
         try:
             IM = Image.open(p)
             break
         except:
             pass
+    IM = Image.open('sample_one.jpg')
     w,h = IM.size
 
     IM = IM.convert("L")
