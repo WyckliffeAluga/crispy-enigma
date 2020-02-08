@@ -91,3 +91,14 @@ TinyStepper_28BYJ_48 m2 ; // (2,3,5,6) // M2 R stepper motor in 1 ~ 4 ports corr
 // Foward motion calculatio --> convert L1, L2 length to XY coordinates
 // using cosine law theta = acos((a * a + b*b-c*c) / (2 *a*b))
 // Find the angle between M1M2 and M1P, where P is the position of the pen
+
+void FK(float l1, float l2, &x, float &y) {
+  float a = l1 * TPS ;
+  float b = X_SEPARATION ;
+  float c = l2 * TPS ;
+
+  // method 1
+  float theta = acos((a*a + b*b - c*c) / (2.0 * a * b)) ;
+  y = cos(theta)*l1 + LIMXMIN ;
+  y = sin(theta)*l1 + LIMYMIN ;
+}
