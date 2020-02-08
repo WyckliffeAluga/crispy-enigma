@@ -304,5 +304,91 @@ static void line_safe(float x, float y) {
 }
 
 void line(float x, float y) {
-  line_safe(x,y); 
+  line_safe(x,y);
+}
+
+//------------------------------------------------------------------------------
+void nc(String st) {
+  String xx, yy, zz ;
+  int ok = 1;
+
+    st.toUpperCase();
+
+    float x, y, z ;
+    int  px,py,pz ;
+    px = st.indexOf('X');
+    py = st.indexOf('Y');
+    pz = st.indexOf('Z');
+
+    if (px == -1 || py == -1) ok = 0 ;
+    if (pz == -1) {
+      pz = st.length();
+    } else {
+      zz = st.substring(pz + 1, st.length());
+      z = zz.toFloat();
+      if (z > 0) pen_up();
+      if (z <=0) pen_down();
+    }
+  xx = st.substring(px + 1, py);
+  yy = st.substring(py + 1, pz);
+
+  xx.trim(); // indent, remove trailing spaces
+  yy.trim();
+
+  if (ok) line(xx.toFloat() , yy.toFloat());
+}
+
+void drawfile(String filename) {
+  String rd = "";
+  int line = 0 ;
+  char rr =0 ;
+
+  myFile = SD.open(filename) ;
+
+  if (myFile) {
+    Serial.println("OPEN:") ;
+
+    while (myFile.available()) {
+      rr = myFile.read();
+
+      if (rr == char(10)) {
+        line++;
+        Serial.print("Run nc #");
+        Serial.print(line);
+        Serial.println(" : " +rd);
+        nc(rd);
+        rd="";
+      }
+      else
+        rd += rr ;
+    }
+    myFile.close();
+  }
+}
+
+void setup() {
+  Serial.begin(BAUD) ;
+  m1.connectToPins(7,8,9,10) ; // M1 L stepper motor in 1 ~ 4 ports corresponding to UNO 7 8 9 10
+  m2.connectToPins(2,3,5,6)  ; // M2 R stepper moter in 1 ~ 4 ports corresponding to UNO 2 3 5 6
+  m1.setSpeedInStepsPerSecond(10000) ;
+  m1.setAccelerationInStepsPerSecondPerSecond(10000) ;
+  m2.setSpeedInStepsPerSecond(10000) ;
+  m2.setAccelerationInStepsPerSecondPerSecond(10000) ;
+
+  // lift pen servo
+  pen.attach(A0) ;
+  ps = PEN_UP_ANGLE ;
+  pen.write(ps) ;
+
+  // set the current pen position to 0,0
+  teleport(0,0) ;
+
+  // scaling rotio
+  mode_scale = 1;
+
+  if (!SD.begin(4)) {
+    Serial.println("Initialization failed!")
+    while ((1)) ;
+  }
+  Serial.println("Test OK!"); 
 }
