@@ -86,3 +86,8 @@ Servo pen;
 
 TinyStepper_28BYJ_48 m1 ; // (7,8,9,10) // M1 L stepper motor in 1 ~ 4 ports corresponding to UNO 7 8 9 10
 TinyStepper_28BYJ_48 m2 ; // (2,3,5,6) // M2 R stepper motor in 1 ~ 4 ports corresponding to UNO 2 3 5 6
+
+//------------------------------------------------------------------------------
+// Foward motion calculatio --> convert L1, L2 length to XY coordinates
+// using cosine law theta = acos((a * a + b*b-c*c) / (2 *a*b))
+// Find the angle between M1M2 and M1P, where P is the position of the pen
