@@ -75,4 +75,14 @@ The follow are G code communication parameters
 #define BAUD    (115200) // Serial speed, used to transmit G code or debug. 9600, 57600, 115200 or other commonly used speeds
 #define MAX_BUF (64) // Serial buffer size
 
-// 
+// serial comm reception
+static int sofar ; // serial buffer progress
+
+static float mode_scale ; // proportion
+
+File myFile;
+
+Servo pen;
+
+TinyStepper_28BYJ_48 m1 ; // (7,8,9,10) // M1 L stepper motor in 1 ~ 4 ports corresponding to UNO 7 8 9 10
+TinyStepper_28BYJ_48 m2 ; // (2,3,5,6) // M2 R stepper motor in 1 ~ 4 ports corresponding to UNO 2 3 5 6
