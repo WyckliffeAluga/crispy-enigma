@@ -147,3 +147,22 @@ void where() {
 
 //------------------------------------------------------------------------------
 // returns angle of dy/dx as a value from 0......2PI
+static float atan3(float dy, float dx) {
+  float a = atan2(dy , dx) ;
+  if (a < 0) a = (PI * 2.0) + a ;
+  return a;
+}
+
+//------------------------------------------------------------------------------
+// draw an arc
+static void arc(float cx, float cy, float x, float y, float dir) {
+  // get radius
+  float dx = posx - cx ;
+  float dy = posy - cy ;
+  float radius = sqrt(dx * dx + dy * dy)
+
+  // find the angle arc (sweep)
+  float angle1 = atan3(dy, dx);
+  float angle2 = atan3(y - cy , x - cx) ;
+  float theta  = angle2 - angle1 ; 
+}
