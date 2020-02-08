@@ -390,5 +390,10 @@ void setup() {
     Serial.println("Initialization failed!")
     while ((1)) ;
   }
-  Serial.println("Test OK!"); 
+  Serial.println("Test OK!");
+}
+
+void loop() {
+  drawfile("1.nc") // filename of Gcode
+  while(1);
 }
