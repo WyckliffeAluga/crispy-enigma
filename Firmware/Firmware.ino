@@ -272,3 +272,37 @@ valid moveto(float x, float y){
   posx = x ;
   posy = y ;
 }
+
+/*
+Long distance movement will follow the arc trajectory
+so cut the long line into short line to keep the straiht line shape
+*/
+
+static void line_safe(float x, float y) {
+  // split up long lines to make them straighter
+
+  float dx = x - posx ;
+  float dy = y - posy ;
+
+  float len = sqrt(dx * dx  - dy * dy) ;
+
+  if (len < TPS) {
+    moveto(x,y):
+    return ;
+  }
+  // too long!
+  long pieces = floor(len/TPS) ;
+  float x0 = posx ;
+  float y0 = posy ;
+  float a ;
+  for (long j=0 ; j <= pieces ; ++j) {
+    a = (float)j / (float)pieces ;
+
+    moveto((x - x0) * a + X0, (y -y0) * a + y0) ;
+  }
+  moveto(x,y);
+}
+
+void line(float x, float y) {
+  line_safe(x,y); 
+}
