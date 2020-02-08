@@ -111,8 +111,38 @@ void pen_state(int pen_st) {
   } else {
     ps = PEN_UP_ANGLE ;
   }
-  pen.write(ps)
+  pen.write(ps);
 }
 
 //
-void pen_down()
+void pen_down() {
+  if (ps == PEN_DOWN_ANGLE) {
+    ps = PEN_UP_ANGLE ;
+    pen.write(ps) ;
+    delay(TPD) ;
+  }
+}
+
+void pen_up() {
+  if(ps == PEN_DOWN_ANGLE) {
+    ps = PEN_UP_ANGLE ;
+    pen.write(ps);
+  }
+}
+
+//------------------------------------------------------------------------------
+// debug code serial port to output machine status
+void where() {
+  Serial.print('X, Y =');
+  Serial.print(posx) ;
+  Serial.print(',') ;
+  Serial.print(posy);
+  Serial.print('\t ')
+  Serial.print("Lst1 , Lst2 = ");
+  Serial.print(laststep1);
+  Serial.print(',');
+  Serial.print(laststep2);
+  Serial.println("");
+}
+
+//------------------------------------------------------------------------------
