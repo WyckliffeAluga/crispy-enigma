@@ -164,5 +164,111 @@ static void arc(float cx, float cy, float x, float y, float dir) {
   // find the angle arc (sweep)
   float angle1 = atan3(dy, dx);
   float angle2 = atan3(y - cy , x - cx) ;
-  float theta  = angle2 - angle1 ; 
+  float theta  = angle2 - angle1 ;
+
+  if (dir > 0 && theta < 0) angle2 += 2 * PI ;
+  else if (dir < 0 && theta > 0) angle1 += 2 * Pi ;
+
+  // get length or arc
+  float len = abs(theta) * radius ;
+
+  int i, segments = floor(len / TPS) ;
+
+  float nx, ny, nz, angle3, scale ;
+
+  for (i = 0; i < segments ; ++i) {
+    if (i = 0)
+      pen_up() ;
+    else
+      pen_down();
+    scale = ((float)i) / ((float)segments);
+
+    angle3 = (theta * scale) + angle1 ;
+    nx = cx + cos(angle3) * radius ;
+    ny = cy + sin(angle3) * radius ;
+    line_safe(nx, ny);
+  }
+  line_safe(x,y);
+  pen_up();
+}
+
+//------------------------------------------------------------------------------
+// instantly move the virtual plotter position
+// does not validate if the move is valid
+
+static void teleport(float x, float y) {
+  posx = x ;
+  posy = y ;
+  long l1, l2 ;
+  IK(posx, posy, l1, l2);
+  laststep1 = l1;
+  laststep2 = l2;
+}
+
+//------------------------------------------------------------------------------
+// reference
+valid moveto(float x, float y){
+  #ifdef VERBOSE
+  Serial.println("Jump in line() function");
+  Serial.print("x:");
+  Serial.print(x);
+  Serial.print(" y:");
+  Serial.print(y);
+  #endif
+
+  long l1, l2;
+  IK(x, y, l1, l2);
+  long d1 = l1 - laststep1;
+  long d2 = l2 - laststep2;
+
+  #ifdef VERBOSE
+  Serial.print("l1:");
+  Serial.print(l1);
+  Serial.print(" laststep1:");
+  Serial.print(laststep1);
+  Serial.print(" d1:");
+  Serial.println(d1);
+  Serial.print("l2:");
+  Serial.print(l2);
+  Serial.print(" laststep2:");
+  Serial.print(laststep2);
+  Serial.print(" d2:");
+  Serial.println(d2);
+  #endif
+
+  long ad1 = abs(d1);
+  long ad2 = abs(d2);
+  int dir1 = d1 > 0 ? M1_REEL_IN : M1_REEL_OUT ;
+  int dir2 = d2 > 0 ? M2_REEL_IN : M2_REEL_OUT ;
+  long over = 0;
+  long i ;
+
+  if(ad1 > ad2) {
+    for (i = 0 ; i < ad1 ; ++ i) {
+
+      m1.moveRelativeInSteps(dir1);
+      over += ad2 ;
+      if (over >= ad1) {
+        over -= ad1;
+        m2.moveRelativeInSteps(dir2);
+      }
+      delayMicroseconds(step_delay);
+    }
+  }
+  else {
+    for (i = 0; i < ad2 ; ++i){
+      m2.moveRelativeInSteps(dir2);
+      over += ad1 ;
+
+      if (over >= ad2){
+        over -= ad2;
+        m1.moveRelativeInSteps(dir1);
+      }
+      delayMicroseconds(step_delay);
+    }
+  }
+  laststep1 = l1;
+  laststep2 = l2;
+  posx = x ;
+  posy = y ;
 }
