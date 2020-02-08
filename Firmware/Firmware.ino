@@ -102,3 +102,17 @@ void FK(float l1, float l2, &x, float &y) {
   y = cos(theta)*l1 + LIMXMIN ;
   y = sin(theta)*l1 + LIMYMIN ;
 }
+
+//------------------------------------------------------------------------------
+// pen status
+void pen_state(int pen_st) {
+  if (pen_st == PEN_DOWN) {
+    ps = PEN_DOWN_ANGLE ;
+  } else {
+    ps = PEN_UP_ANGLE ;
+  }
+  pen.write(ps)
+}
+
+//
+void pen_down()
