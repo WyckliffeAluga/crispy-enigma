@@ -1,0 +1,4 @@
+
+The file name indicates the actual drawing size. The larger the file size, the more complicated the details and the longer the drawing time.
+
+Wall cracking is recommended to test with small files before drawing complex large pictures.
