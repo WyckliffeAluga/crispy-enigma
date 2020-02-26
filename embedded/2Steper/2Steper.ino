@@ -1,22 +1,20 @@
 #include <AccelStepper.h>
-//此lib库文件在程序包中，需要先复制到arduiino的\libraries文件夹下。
-//方法1： 复制到 我的文档\Arduino\libraries 中
-//方法2： 在arduino IDE的菜单中选择 项目->加载库->管理库 中搜索AccelStepper，自动安装
 
 #define FULLSTEP 4
 #define HALFSTEP 8
-//接线方法 
-//电机1的接法
-#define motorPin1  2     //  28BYJ48 pin 1 接 arduino的2#口
-#define motorPin2  3     //  28BYJ48 pin 2 接 3#
-#define motorPin3  5     //  28BYJ48 pin 3 接 5#  ！注意，4#口预留sd读卡器
-#define motorPin4  6     //  28BYJ48 pin 4 接 6#
+
+// Wiring method
+// Motor 1 connection
+#define motorPin1  2     //  28BYJ48 pin 1 Connect to port 2 of arduino
+#define motorPin2  3     //  28BYJ48 pin 2 Pick up 3 
+#define motorPin3  5     //  28BYJ48 pin 3 Connect 5  Note that 4 port reserves SD card reader
+#define motorPin4  6     //  28BYJ48 pin 4 Pick up 6 
 
 //电机2的接法
-#define motorPin5  7     //  28BYJ48 pin 1 接 7#
-#define motorPin6  8     //  28BYJ48 pin 2 接 8#
-#define motorPin7  9     //  28BYJ48 pin 3 接 9#
-#define motorPin8  10    //  28BYJ48 pin 4 接 10#
+#define motorPin5  7     //  28BYJ48 pin 1 Pick up 7
+#define motorPin6  8     //  28BYJ48 pin 2 Pick up 8
+#define motorPin7  9     //  28BYJ48 pin 3 Pick up 9
+#define motorPin8  10    //  28BYJ48 pin 4 PIck up 10
 
 
 AccelStepper stepper1(HALFSTEP, motorPin1, motorPin3, motorPin2, motorPin4);
@@ -25,11 +23,11 @@ AccelStepper stepper2(HALFSTEP, motorPin5, motorPin7, motorPin6, motorPin8);
 void setup() 
 {
   Serial.begin(9600);
-  stepper1.setMaxSpeed(1000.0);     //最大速度，过高扭矩变小，超过256容易丢步
-  stepper1.setAcceleration(256.0);  //加速度，试稳定程序可以调节。
-  stepper1.setSpeed(256);           //速度
-  //视 FULLSTEP 或 HALFSTEP， 1024 或 512 步进电机转一周   
-  //设置电机1的旋转步数 可调节（数字越大，图形尺寸越大）
+  stepper1.setMaxSpeed(1000.0);     //Maximum speed, excessively high torque becomes small, and it is easy to lose step if it exceeds 256
+  stepper1.setAcceleration(256.0);  //Acceleration and test stabilization procedures can be adjusted.
+  stepper1.setSpeed(256);           //Speed
+  //Depending on FULLSTEP or HALFSTEP, 1024 or 512 stepper motors make one revolution  
+  //Set the number of rotation steps for motor 1. Adjustable (the larger the number, the larger the graphic size)
   stepper1.moveTo(790);
   
   stepper2.setMaxSpeed(1000.0);
